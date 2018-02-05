@@ -65,7 +65,7 @@
 # include <gperftools/stacktrace.h>
 #endif
 
-namespace base {
+namespace tcmalloc {
 struct MallocRange;
 }
 
@@ -150,7 +150,7 @@ class PERFTOOLS_DLL_DECL PageHeap {
 
   // If this page heap is managing a range with starting page # >= start,
   // store info about the range in *r and return true.  Else return false.
-  bool GetNextRange(PageID start, base::MallocRange* r);
+  bool GetNextRange(PageID start, tcmalloc::MallocRange* r);
 
   // Page heap statistics
   struct Stats {

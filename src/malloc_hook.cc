@@ -157,13 +157,13 @@ extern "C" void MallocHook_InitAtFirstAllocation_HeapLeakChecker() {
   // Do nothing.
 }
 
-namespace base { namespace internal {
+namespace tcmalloc { namespace internal {
 
 // This lock is shared between all implementations of HookList::Add & Remove.
 // The potential for contention is very small.  This needs to be a SpinLock and
 // not a Mutex since it's possible for Mutex locking to allocate memory (e.g.,
 // per-thread allocation in debug builds), which could cause infinite recursion.
-static SpinLock hooklist_spinlock(base::LINKER_INITIALIZED);
+static SpinLock hooklist_spinlock(tcmalloc::LINKER_INITIALIZED);
 
 template <typename T>
 bool HookList<T>::Add(T value_as_t) {
@@ -175,28 +175,28 @@ bool HookList<T>::Add(T value_as_t) {
   // Find the first slot in data that is 0.
   int index = 0;
   while ((index < kHookListMaxValues) &&
-         (base::subtle::NoBarrier_Load(&priv_data[index]) != 0)) {
+         (tcmalloc::subtle::NoBarrier_Load(&priv_data[index]) != 0)) {
     ++index;
   }
   if (index == kHookListMaxValues) {
     return false;
   }
-  AtomicWord prev_num_hooks = base::subtle::Acquire_Load(&priv_end);
-  base::subtle::NoBarrier_Store(&priv_data[index], value);
+  AtomicWord prev_num_hooks = tcmalloc::subtle::Acquire_Load(&priv_end);
+  tcmalloc::subtle::NoBarrier_Store(&priv_data[index], value);
   if (prev_num_hooks <= index) {
-    base::subtle::NoBarrier_Store(&priv_end, index + 1);
+    tcmalloc::subtle::NoBarrier_Store(&priv_end, index + 1);
   }
   return true;
 }
 
 template <typename T>
 void HookList<T>::FixupPrivEndLocked() {
-  AtomicWord hooks_end = base::subtle::NoBarrier_Load(&priv_end);
+  AtomicWord hooks_end = tcmalloc::subtle::NoBarrier_Load(&priv_end);
   while ((hooks_end > 0) &&
-         (base::subtle::NoBarrier_Load(&priv_data[hooks_end - 1]) == 0)) {
+         (tcmalloc::subtle::NoBarrier_Load(&priv_data[hooks_end - 1]) == 0)) {
     --hooks_end;
   }
-  base::subtle::NoBarrier_Store(&priv_end, hooks_end);
+  tcmalloc::subtle::NoBarrier_Store(&priv_end, hooks_end);
 }
 
 template <typename T>
@@ -205,26 +205,26 @@ bool HookList<T>::Remove(T value_as_t) {
     return false;
   }
   SpinLockHolder l(&hooklist_spinlock);
-  AtomicWord hooks_end = base::subtle::NoBarrier_Load(&priv_end);
+  AtomicWord hooks_end = tcmalloc::subtle::NoBarrier_Load(&priv_end);
   int index = 0;
   while (index < hooks_end && value_as_t != bit_cast<T>(
-             base::subtle::NoBarrier_Load(&priv_data[index]))) {
+             tcmalloc::subtle::NoBarrier_Load(&priv_data[index]))) {
     ++index;
   }
   if (index == hooks_end) {
     return false;
   }
-  base::subtle::NoBarrier_Store(&priv_data[index], 0);
+  tcmalloc::subtle::NoBarrier_Store(&priv_data[index], 0);
   FixupPrivEndLocked();
   return true;
 }
 
 template <typename T>
 int HookList<T>::Traverse(T* output_array, int n) const {
-  AtomicWord hooks_end = base::subtle::Acquire_Load(&priv_end);
+  AtomicWord hooks_end = tcmalloc::subtle::Acquire_Load(&priv_end);
   int actual_hooks_end = 0;
   for (int i = 0; i < hooks_end && n > 0; ++i) {
-    AtomicWord data = base::subtle::Acquire_Load(&priv_data[i]);
+    AtomicWord data = tcmalloc::subtle::Acquire_Load(&priv_data[i]);
     if (data != 0) {
       *output_array++ = bit_cast<T>(data);
       ++actual_hooks_end;
@@ -239,10 +239,10 @@ T HookList<T>::ExchangeSingular(T value_as_t) {
   AtomicWord value = bit_cast<AtomicWord>(value_as_t);
   AtomicWord old_value;
   SpinLockHolder l(&hooklist_spinlock);
-  old_value = base::subtle::NoBarrier_Load(&priv_data[kHookListSingularIdx]);
-  base::subtle::NoBarrier_Store(&priv_data[kHookListSingularIdx], value);
+  old_value = tcmalloc::subtle::NoBarrier_Load(&priv_data[kHookListSingularIdx]);
+  tcmalloc::subtle::NoBarrier_Store(&priv_data[kHookListSingularIdx], value);
   if (value != 0) {
-    base::subtle::NoBarrier_Store(&priv_end, kHookListSingularIdx + 1);
+    tcmalloc::subtle::NoBarrier_Store(&priv_end, kHookListSingularIdx + 1);
   } else {
     FixupPrivEndLocked();
   }
@@ -277,19 +277,19 @@ HookList<MallocHook::MunmapReplacement> munmap_replacement_ = { 0 };
 #undef INIT_HOOK_LIST_WITH_VALUE
 #undef INIT_HOOK_LIST
 
-} }  // namespace base::internal
+} }  // namespace tcmalloc::internal
 
-using base::internal::kHookListMaxValues;
-using base::internal::new_hooks_;
-using base::internal::delete_hooks_;
-using base::internal::premmap_hooks_;
-using base::internal::mmap_hooks_;
-using base::internal::mmap_replacement_;
-using base::internal::munmap_hooks_;
-using base::internal::munmap_replacement_;
-using base::internal::mremap_hooks_;
-using base::internal::presbrk_hooks_;
-using base::internal::sbrk_hooks_;
+using tcmalloc::internal::kHookListMaxValues;
+using tcmalloc::internal::new_hooks_;
+using tcmalloc::internal::delete_hooks_;
+using tcmalloc::internal::premmap_hooks_;
+using tcmalloc::internal::mmap_hooks_;
+using tcmalloc::internal::mmap_replacement_;
+using tcmalloc::internal::munmap_hooks_;
+using tcmalloc::internal::munmap_replacement_;
+using tcmalloc::internal::mremap_hooks_;
+using tcmalloc::internal::presbrk_hooks_;
+using tcmalloc::internal::sbrk_hooks_;
 
 // These are available as C bindings as well as C++, hence their
 // definition outside the MallocHook class.

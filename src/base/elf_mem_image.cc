@@ -54,7 +54,7 @@
 
 #define VERSYM_VERSION 0x7fff
 
-namespace base {
+namespace tcmalloc {
 
 namespace {
 template <int N> class ElfClass {
@@ -429,6 +429,6 @@ void ElfMemImage::SymbolIterator::Update(int increment) {
   info_.symbol  = symbol;
 }
 
-}  // namespace base
+}  // namespace tcmalloc
 
 #endif  // HAVE_ELF_MEM_IMAGE

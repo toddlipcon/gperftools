@@ -40,12 +40,12 @@
 #include "base/basictypes.h"
 #include "base/atomicops.h"
 
-namespace base {
+namespace tcmalloc {
 namespace internal {
 
 void SpinLockWake(volatile Atomic32 *w, bool all);
 void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop);
 
 } // namespace internal
-} // namespace base
+} // namespace tcmalloc
 #endif

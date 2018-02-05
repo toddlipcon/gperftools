@@ -149,8 +149,8 @@ static int GET_STACK_TRACE_OR_FRAMES {
   skip_count++; // skip parent's frame due to indirection in
                 // stacktrace.cc
 
-  base::VDSOSupport vdso;
-  base::ElfMemImage::SymbolInfo rt_sigreturn_symbol_info;
+  tcmalloc::VDSOSupport vdso;
+  tcmalloc::ElfMemImage::SymbolInfo rt_sigreturn_symbol_info;
 #ifdef __PPC64__
   const void *sigtramp64_vdso = 0;
   if (vdso.LookupSymbol("__kernel_sigtramp_rt64", "LINUX_2.6.15", STT_NOTYPE,

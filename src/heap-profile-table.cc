@@ -593,7 +593,7 @@ void HeapProfileTable::Snapshot::ReportLeaks(const char* checker_name,
     symbolization_table.Symbolize();
   for (int i = 0; i < to_report; i++) {
     const Entry& e = entries[i];
-    base::RawPrinter printer(buffer, kBufSize);
+    tcmalloc::RawPrinter printer(buffer, kBufSize);
     printer.Printf("Leak of %d bytes in %d objects allocated from:\n",
                    e.bytes, e.count);
     for (int j = 0; j < e.bucket->depth; j++) {

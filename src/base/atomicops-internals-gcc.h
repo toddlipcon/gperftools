@@ -44,7 +44,7 @@
 
 typedef int32_t Atomic32;
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 typedef int64_t Atomic64;
@@ -197,7 +197,7 @@ inline Atomic64 Release_Load(volatile const Atomic64* ptr) {
   return *ptr;
 }
 
-}  // namespace base::subtle
-}  // namespace base
+}  // namespace tcmalloc::subtle
+}  // namespace tcmalloc
 
 #endif  // BASE_ATOMICOPS_INTERNALS_GCC_GENERIC_H_

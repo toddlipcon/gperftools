@@ -65,7 +65,7 @@
 
 #include <stdlib.h>     // for NULL
 
-namespace base {
+namespace tcmalloc {
 
 // NOTE: this class may be used from within tcmalloc, and can not
 // use any memory allocation routines.
@@ -125,7 +125,7 @@ class VDSOSupport {
   DISALLOW_COPY_AND_ASSIGN(VDSOSupport);
 };
 
-}  // namespace base
+}  // namespace tcmalloc
 
 #endif  // HAVE_ELF_MEM_IMAGE
 

@@ -51,14 +51,14 @@ class LOCKABLE SpinLock {
 
   // Special constructor for use with static SpinLock objects.  E.g.,
   //
-  //    static SpinLock lock(base::LINKER_INITIALIZED);
+  //    static SpinLock lock(tcmalloc::LINKER_INITIALIZED);
   //
   // When intialized using this constructor, we depend on the fact
   // that the linker has already initialized the memory appropriately.
   // A SpinLock constructed like this can be freely used from global
   // initializers without worrying about the order in which global
   // initializers run.
-  explicit SpinLock(base::LinkerInitialized /*x*/) {
+  explicit SpinLock(tcmalloc::LinkerInitialized /*x*/) {
     // Does nothing; lockword_ is already initialized
   }
 
@@ -66,7 +66,7 @@ class LOCKABLE SpinLock {
   // TODO(csilvers): uncomment the annotation when we figure out how to
   //                 support this macro with 0 args (see thread_annotations.h)
   inline void Lock() /*EXCLUSIVE_LOCK_FUNCTION()*/ {
-    if (base::subtle::Acquire_CompareAndSwap(&lockword_, kSpinLockFree,
+    if (tcmalloc::subtle::Acquire_CompareAndSwap(&lockword_, kSpinLockFree,
                                              kSpinLockHeld) != kSpinLockFree) {
       SlowLock();
     }
@@ -79,7 +79,7 @@ class LOCKABLE SpinLock {
   // will return true with high probability.
   inline bool TryLock() EXCLUSIVE_TRYLOCK_FUNCTION(true) {
     bool res =
-        (base::subtle::Acquire_CompareAndSwap(&lockword_, kSpinLockFree,
+        (tcmalloc::subtle::Acquire_CompareAndSwap(&lockword_, kSpinLockFree,
                                               kSpinLockHeld) == kSpinLockFree);
     if (res) {
       ANNOTATE_RWLOCK_ACQUIRED(this, 1);
@@ -93,7 +93,7 @@ class LOCKABLE SpinLock {
   inline void Unlock() /*UNLOCK_FUNCTION()*/ {
     ANNOTATE_RWLOCK_RELEASED(this, 1);
     uint64 prev_value = static_cast<uint64>(
-        base::subtle::Release_AtomicExchange(&lockword_, kSpinLockFree));
+        tcmalloc::subtle::Release_AtomicExchange(&lockword_, kSpinLockFree));
     if (prev_value != kSpinLockHeld) {
       // Speed the wakeup of any waiter.
       SlowUnlock();
@@ -104,10 +104,10 @@ class LOCKABLE SpinLock {
   // thread, true will always be returned. Intended to be used as
   // CHECK(lock.IsHeld()).
   inline bool IsHeld() const {
-    return base::subtle::NoBarrier_Load(&lockword_) != kSpinLockFree;
+    return tcmalloc::subtle::NoBarrier_Load(&lockword_) != kSpinLockFree;
   }
 
-  static const base::LinkerInitialized LINKER_INITIALIZED;  // backwards compat
+  static const tcmalloc::LinkerInitialized LINKER_INITIALIZED;  // backwards compat
  private:
   enum { kSpinLockFree = 0 };
   enum { kSpinLockHeld = 1 };

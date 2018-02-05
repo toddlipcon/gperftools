@@ -99,19 +99,19 @@ static void TestStore() {
 
   AtomicType value;
 
-  base::subtle::NoBarrier_Store(&value, kVal1);
+  tcmalloc::subtle::NoBarrier_Store(&value, kVal1);
   ASSERT_EQ(kVal1, value);
-  base::subtle::NoBarrier_Store(&value, kVal2);
+  tcmalloc::subtle::NoBarrier_Store(&value, kVal2);
   ASSERT_EQ(kVal2, value);
 
-  base::subtle::Acquire_Store(&value, kVal1);
+  tcmalloc::subtle::Acquire_Store(&value, kVal1);
   ASSERT_EQ(kVal1, value);
-  base::subtle::Acquire_Store(&value, kVal2);
+  tcmalloc::subtle::Acquire_Store(&value, kVal2);
   ASSERT_EQ(kVal2, value);
 
-  base::subtle::Release_Store(&value, kVal1);
+  tcmalloc::subtle::Release_Store(&value, kVal1);
   ASSERT_EQ(kVal1, value);
-  base::subtle::Release_Store(&value, kVal2);
+  tcmalloc::subtle::Release_Store(&value, kVal2);
   ASSERT_EQ(kVal2, value);
 }
 
@@ -125,30 +125,30 @@ static void TestLoad() {
   AtomicType value;
 
   value = kVal1;
-  ASSERT_EQ(kVal1, base::subtle::NoBarrier_Load(&value));
+  ASSERT_EQ(kVal1, tcmalloc::subtle::NoBarrier_Load(&value));
   value = kVal2;
-  ASSERT_EQ(kVal2, base::subtle::NoBarrier_Load(&value));
+  ASSERT_EQ(kVal2, tcmalloc::subtle::NoBarrier_Load(&value));
 
   value = kVal1;
-  ASSERT_EQ(kVal1, base::subtle::Acquire_Load(&value));
+  ASSERT_EQ(kVal1, tcmalloc::subtle::Acquire_Load(&value));
   value = kVal2;
-  ASSERT_EQ(kVal2, base::subtle::Acquire_Load(&value));
+  ASSERT_EQ(kVal2, tcmalloc::subtle::Acquire_Load(&value));
 
   value = kVal1;
-  ASSERT_EQ(kVal1, base::subtle::Release_Load(&value));
+  ASSERT_EQ(kVal1, tcmalloc::subtle::Release_Load(&value));
   value = kVal2;
-  ASSERT_EQ(kVal2, base::subtle::Release_Load(&value));
+  ASSERT_EQ(kVal2, tcmalloc::subtle::Release_Load(&value));
 }
 
 template <class AtomicType>
 static void TestAtomicOps() {
-  TestCompareAndSwap<AtomicType>(base::subtle::NoBarrier_CompareAndSwap);
-  TestCompareAndSwap<AtomicType>(base::subtle::Acquire_CompareAndSwap);
-  TestCompareAndSwap<AtomicType>(base::subtle::Release_CompareAndSwap);
+  TestCompareAndSwap<AtomicType>(tcmalloc::subtle::NoBarrier_CompareAndSwap);
+  TestCompareAndSwap<AtomicType>(tcmalloc::subtle::Acquire_CompareAndSwap);
+  TestCompareAndSwap<AtomicType>(tcmalloc::subtle::Release_CompareAndSwap);
 
-  TestAtomicExchange<AtomicType>(base::subtle::NoBarrier_AtomicExchange);
-  TestAtomicExchange<AtomicType>(base::subtle::Acquire_AtomicExchange);
-  TestAtomicExchange<AtomicType>(base::subtle::Release_AtomicExchange);
+  TestAtomicExchange<AtomicType>(tcmalloc::subtle::NoBarrier_AtomicExchange);
+  TestAtomicExchange<AtomicType>(tcmalloc::subtle::Acquire_AtomicExchange);
+  TestAtomicExchange<AtomicType>(tcmalloc::subtle::Release_AtomicExchange);
 
   TestStore<AtomicType>();
   TestLoad<AtomicType>();

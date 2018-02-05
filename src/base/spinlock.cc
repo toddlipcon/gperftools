@@ -45,8 +45,8 @@
 
 static int adaptive_spin_count = 0;
 
-const base::LinkerInitialized SpinLock::LINKER_INITIALIZED =
-    base::LINKER_INITIALIZED;
+const tcmalloc::LinkerInitialized SpinLock::LINKER_INITIALIZED =
+    tcmalloc::LINKER_INITIALIZED;
 
 namespace {
 struct SpinLock_InitHelper {
@@ -77,10 +77,10 @@ inline void SpinlockPause(void) {
 // from the lock is returned from the method.
 Atomic32 SpinLock::SpinLoop() {
   int c = adaptive_spin_count;
-  while (base::subtle::NoBarrier_Load(&lockword_) != kSpinLockFree && --c > 0) {
+  while (tcmalloc::subtle::NoBarrier_Load(&lockword_) != kSpinLockFree && --c > 0) {
     SpinlockPause();
   }
-  return base::subtle::Acquire_CompareAndSwap(&lockword_, kSpinLockFree,
+  return tcmalloc::subtle::Acquire_CompareAndSwap(&lockword_, kSpinLockFree,
                                               kSpinLockSleeper);
 }
 
@@ -95,7 +95,7 @@ void SpinLock::SlowLock() {
       // Here, just "mark" that the thread is going to sleep.  Don't store the
       // lock wait time in the lock as that will cause the current lock
       // owner to think it experienced contention.
-      lock_value = base::subtle::Acquire_CompareAndSwap(&lockword_,
+      lock_value = tcmalloc::subtle::Acquire_CompareAndSwap(&lockword_,
                                                         kSpinLockHeld,
                                                         kSpinLockSleeper);
       if (lock_value == kSpinLockHeld) {
@@ -107,7 +107,7 @@ void SpinLock::SlowLock() {
         // Lock is free again, so try and acquire it before sleeping.  The
         // new lock state will be the number of cycles this thread waited if
         // this thread obtains the lock.
-        lock_value = base::subtle::Acquire_CompareAndSwap(&lockword_,
+        lock_value = tcmalloc::subtle::Acquire_CompareAndSwap(&lockword_,
                                                           kSpinLockFree,
                                                           kSpinLockSleeper);
         continue;  // skip the delay at the end of the loop
@@ -115,7 +115,7 @@ void SpinLock::SlowLock() {
     }
 
     // Wait for an OS specific delay.
-    base::internal::SpinLockDelay(&lockword_, lock_value,
+    tcmalloc::internal::SpinLockDelay(&lockword_, lock_value,
                                   ++lock_wait_call_count);
     // Spin again after returning from the wait routine to give this thread
     // some chance of obtaining the lock.
@@ -125,5 +125,5 @@ void SpinLock::SlowLock() {
 
 void SpinLock::SlowUnlock() {
   // wake waiter if necessary
-  base::internal::SpinLockWake(&lockword_, false);
+  tcmalloc::internal::SpinLockWake(&lockword_, false);
 }

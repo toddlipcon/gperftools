@@ -45,7 +45,7 @@
 
 typedef int32_t Atomic32;
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 // Atomically execute:
@@ -317,7 +317,7 @@ inline Atomic64 Release_Load(volatile const Atomic64* ptr)
 
 #endif
 
-}   // namespace base::subtle
-}   // namespace base
+}   // namespace tcmalloc::subtle
+}   // namespace tcmalloc
 
 #endif  // BASE_ATOMICOPS_INTERNALS_MIPS_H_

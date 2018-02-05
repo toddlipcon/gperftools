@@ -67,7 +67,7 @@ static const int kMallocHistogramSize = 64;
 // One day, we could support other types of writers (perhaps for C?)
 typedef std::string MallocExtensionWriter;
 
-namespace base {
+namespace tcmalloc {
 struct MallocRange;
 }
 
@@ -144,7 +144,7 @@ class PERFTOOLS_DLL_DECL MallocExtension {
   //
   // This is a best-effort interface useful only for performance
   // analysis.  The implementation may not call func at all.
-  typedef void (RangeFunction)(void*, const base::MallocRange*);
+  typedef void (RangeFunction)(void*, const tcmalloc::MallocRange*);
   virtual void Ranges(void* arg, RangeFunction func);
 
   // -------------------------------------------------------------------
@@ -413,7 +413,7 @@ extern "C" {
   PERFTOOLS_DLL_DECL bool set_malloc_thread_cache(ThreadCacheState* state);
 }
 
-namespace base {
+namespace tcmalloc {
 
 // Information passed per range.  More fields may be added later.
 struct MallocRange {
@@ -436,6 +436,6 @@ struct MallocRange {
   // - age when allocated (for inuse) or freed (if not in use)
 };
 
-} // namespace base
+} // namespace tcmalloc
 
 #endif  // BASE_MALLOC_EXTENSION_H_

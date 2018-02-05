@@ -57,7 +57,7 @@ static const int kDumperPeriodMicros = 3000;
 
 static const int kTokenSize = 1 << 10;
 
-static SpinLock lock(base::LINKER_INITIALIZED);
+static SpinLock lock(tcmalloc::LINKER_INITIALIZED);
 
 static uint64_t token_counter;
 static uint64_t thread_id_counter;

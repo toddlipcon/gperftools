@@ -589,7 +589,7 @@ static void IterateOverRanges(void* arg, MallocExtension::RangeFunction func) {
   while (!done) {
     // Accumulate a small number of ranges in a local buffer
     static const int kNumRanges = 16;
-    static base::MallocRange ranges[kNumRanges];
+    static tcmalloc::MallocRange ranges[kNumRanges];
     int n = 0;
     {
       SpinLockHolder h(Static::pageheap_lock());
@@ -1837,7 +1837,7 @@ void* memalign_pages(size_t align, size_t size,
 template <void* OOMHandler(size_t)>
 ATTRIBUTE_ALWAYS_INLINE inline
 static void * malloc_fast_path(size_t size) {
-  if (PREDICT_FALSE(!base::internal::new_hooks_.empty())) {
+  if (PREDICT_FALSE(!tcmalloc::internal::new_hooks_.empty())) {
     return tcmalloc::dispatch_allocate_full<OOMHandler>(size);
   }
 
@@ -1888,7 +1888,7 @@ void* tc_malloc(size_t size) PERFTOOLS_NOTHROW {
 
 static ATTRIBUTE_ALWAYS_INLINE inline
 void free_fast_path(void *ptr) {
-  if (PREDICT_FALSE(!base::internal::delete_hooks_.empty())) {
+  if (PREDICT_FALSE(!tcmalloc::internal::delete_hooks_.empty())) {
     tcmalloc::invoke_hooks_and_free(ptr);
     return;
   }
@@ -1902,7 +1902,7 @@ void tc_free(void* ptr) PERFTOOLS_NOTHROW {
 
 extern "C" PERFTOOLS_DLL_DECL CACHELINE_ALIGNED_FN
 void tc_free_sized(void *ptr, size_t size) PERFTOOLS_NOTHROW {
-  if (PREDICT_FALSE(!base::internal::delete_hooks_.empty())) {
+  if (PREDICT_FALSE(!tcmalloc::internal::delete_hooks_.empty())) {
     tcmalloc::invoke_hooks_and_free(ptr);
     return;
   }
@@ -2004,7 +2004,7 @@ extern "C" PERFTOOLS_DLL_DECL void tc_delete_nothrow(void* p, const std::nothrow
 TC_ALIAS(tc_free);
 #else
 {
-  if (PREDICT_FALSE(!base::internal::delete_hooks_.empty())) {
+  if (PREDICT_FALSE(!tcmalloc::internal::delete_hooks_.empty())) {
     tcmalloc::invoke_hooks_and_free(p);
     return;
   }

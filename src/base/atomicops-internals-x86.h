@@ -64,7 +64,7 @@ extern struct AtomicOps_x86CPUFeatureStruct AtomicOps_Internalx86CPUFeatures;
 #define ATOMICOPS_COMPILER_BARRIER() __asm__ __volatile__("" : : : "memory")
 
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 typedef int64_t Atomic64;
@@ -383,8 +383,8 @@ inline Atomic64 Release_CompareAndSwap(volatile Atomic64* ptr,
   return NoBarrier_CompareAndSwap(ptr, old_value, new_value);
 }
 
-} // namespace base::subtle
-} // namespace base
+} // namespace tcmalloc::subtle
+} // namespace tcmalloc
 
 #undef ATOMICOPS_COMPILER_BARRIER
 

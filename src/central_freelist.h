@@ -52,7 +52,7 @@ class CentralFreeList {
   // A CentralFreeList may be used before its constructor runs.
   // So we prevent lock_'s constructor from doing anything to the
   // lock_ state.
-  CentralFreeList() : lock_(base::LINKER_INITIALIZED) { }
+  CentralFreeList() : lock_(tcmalloc::LINKER_INITIALIZED) { }
 
   void Init(size_t cl);
 

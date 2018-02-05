@@ -49,7 +49,7 @@ typedef int32 Atomic32;
 #define BASE_HAS_ATOMIC64 1  // Use only in tests and base/atomic*
 #endif
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 typedef int64 Atomic64;
@@ -150,8 +150,8 @@ inline Atomic32 Release_AtomicExchange(volatile Atomic32* ptr,
   return NoBarrier_AtomicExchange(ptr, new_value);
 }
 
-}  // namespace base::subtle
-}  // namespace base
+}  // namespace tcmalloc::subtle
+}  // namespace tcmalloc
 
 
 // In msvc8/vs2005, winnt.h already contains a definition for
@@ -160,12 +160,12 @@ inline Atomic32 Release_AtomicExchange(volatile Atomic32* ptr,
 #if !(defined(_MSC_VER) && _MSC_VER >= 1400)
 inline void MemoryBarrier() {
   Atomic32 value = 0;
-  base::subtle::NoBarrier_AtomicExchange(&value, 0);
+  tcmalloc::subtle::NoBarrier_AtomicExchange(&value, 0);
                         // actually acts as a barrier in thisd implementation
 }
 #endif
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 inline void MemoryBarrier() {
@@ -451,7 +451,7 @@ inline Atomic64 Release_CompareAndSwap(volatile Atomic64* ptr,
   return NoBarrier_CompareAndSwap(ptr, old_value, new_value);
 }
 
-}  // namespace base::subtle
-}  // namespace base
+}  // namespace tcmalloc::subtle
+}  // namespace tcmalloc
 
 #endif  // BASE_ATOMICOPS_INTERNALS_WINDOWS_H_

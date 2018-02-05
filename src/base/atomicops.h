@@ -67,12 +67,12 @@
 //   NoBarrier_Store()
 //   NoBarrier_Load()
 // Although there are currently no compiler enforcement, you are encouraged
-// to use these.  Moreover, if you choose to use base::subtle::Atomic64 type,
+// to use these.  Moreover, if you choose to use tcmalloc::subtle::Atomic64 type,
 // you MUST use one of the Load or Store routines to get correct behavior
 // on 32-bit platforms.
 //
 // The intent is eventually to put all of these routines in namespace
-// base::subtle
+// tcmalloc::subtle
 
 #ifndef THREAD_ATOMICOPS_H_
 #define THREAD_ATOMICOPS_H_
@@ -90,7 +90,7 @@
 // should define the macro, AtomicWordCastType in a clause similar to the
 // following:
 // #if ...pointers are 64 bits...
-// # define AtomicWordCastType base::subtle::Atomic64
+// # define AtomicWordCastType tcmalloc::subtle::Atomic64
 // #else
 // # define AtomicWordCastType Atomic32
 // #endif
@@ -143,7 +143,7 @@ typedef intptr_t AtomicWord;
 // It also serves to document the AtomicWord interface.
 // ------------------------------------------------------------------------
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 // Atomically execute:
@@ -187,7 +187,7 @@ inline AtomicWord Release_AtomicExchange(volatile AtomicWord* ptr,
 inline AtomicWord Acquire_CompareAndSwap(volatile AtomicWord* ptr,
                                          AtomicWord old_value,
                                          AtomicWord new_value) {
-  return base::subtle::Acquire_CompareAndSwap(
+  return tcmalloc::subtle::Acquire_CompareAndSwap(
       reinterpret_cast<volatile AtomicWordCastType*>(ptr),
       old_value, new_value);
 }
@@ -195,7 +195,7 @@ inline AtomicWord Acquire_CompareAndSwap(volatile AtomicWord* ptr,
 inline AtomicWord Release_CompareAndSwap(volatile AtomicWord* ptr,
                                          AtomicWord old_value,
                                          AtomicWord new_value) {
-  return base::subtle::Release_CompareAndSwap(
+  return tcmalloc::subtle::Release_CompareAndSwap(
       reinterpret_cast<volatile AtomicWordCastType*>(ptr),
       old_value, new_value);
 }
@@ -206,12 +206,12 @@ inline void NoBarrier_Store(volatile AtomicWord *ptr, AtomicWord value) {
 }
 
 inline void Acquire_Store(volatile AtomicWord* ptr, AtomicWord value) {
-  return base::subtle::Acquire_Store(
+  return tcmalloc::subtle::Acquire_Store(
       reinterpret_cast<volatile AtomicWordCastType*>(ptr), value);
 }
 
 inline void Release_Store(volatile AtomicWord* ptr, AtomicWord value) {
-  return base::subtle::Release_Store(
+  return tcmalloc::subtle::Release_Store(
       reinterpret_cast<volatile AtomicWordCastType*>(ptr), value);
 }
 
@@ -221,17 +221,17 @@ inline AtomicWord NoBarrier_Load(volatile const AtomicWord *ptr) {
 }
 
 inline AtomicWord Acquire_Load(volatile const AtomicWord* ptr) {
-  return base::subtle::Acquire_Load(
+  return tcmalloc::subtle::Acquire_Load(
       reinterpret_cast<volatile const AtomicWordCastType*>(ptr));
 }
 
 inline AtomicWord Release_Load(volatile const AtomicWord* ptr) {
-  return base::subtle::Release_Load(
+  return tcmalloc::subtle::Release_Load(
       reinterpret_cast<volatile const AtomicWordCastType*>(ptr));
 }
 
-}  // namespace base::subtle
-}  // namespace base
+}  // namespace tcmalloc::subtle
+}  // namespace tcmalloc
 #endif  // AtomicWordCastType
 
 // ------------------------------------------------------------------------
@@ -247,7 +247,7 @@ inline AtomicWord Release_Load(volatile const AtomicWord* ptr) {
 typedef int32_t Atomic32;
 
 // Corresponding operations on Atomic32
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 // Signed 64-bit type that supports the atomic ops below, as well as atomic
@@ -294,8 +294,8 @@ void Release_Store(volatile Atomic64* ptr, Atomic64 value);
 Atomic64 NoBarrier_Load(volatile const Atomic64* ptr);
 Atomic64 Acquire_Load(volatile const Atomic64* ptr);
 Atomic64 Release_Load(volatile const Atomic64* ptr);
-}  // namespace base::subtle
-}  // namespace base
+}  // namespace tcmalloc::subtle
+}  // namespace tcmalloc
 
 void MemoryBarrier();
 
@@ -304,7 +304,7 @@ void MemoryBarrier();
 
 // ------------------------------------------------------------------------
 // The following are to be deprecated when all uses have been changed to
-// use the base::subtle namespace.
+// use the tcmalloc::subtle namespace.
 // ------------------------------------------------------------------------
 
 #ifdef AtomicWordCastType
@@ -312,29 +312,29 @@ void MemoryBarrier();
 inline AtomicWord Acquire_CompareAndSwap(volatile AtomicWord* ptr,
                                          AtomicWord old_value,
                                          AtomicWord new_value) {
-  return base::subtle::Acquire_CompareAndSwap(ptr, old_value, new_value);
+  return tcmalloc::subtle::Acquire_CompareAndSwap(ptr, old_value, new_value);
 }
 
 inline AtomicWord Release_CompareAndSwap(volatile AtomicWord* ptr,
                                          AtomicWord old_value,
                                          AtomicWord new_value) {
-  return base::subtle::Release_CompareAndSwap(ptr, old_value, new_value);
+  return tcmalloc::subtle::Release_CompareAndSwap(ptr, old_value, new_value);
 }
 
 inline void Acquire_Store(volatile AtomicWord* ptr, AtomicWord value) {
-  return base::subtle::Acquire_Store(ptr, value);
+  return tcmalloc::subtle::Acquire_Store(ptr, value);
 }
 
 inline void Release_Store(volatile AtomicWord* ptr, AtomicWord value) {
-  return base::subtle::Release_Store(ptr, value);
+  return tcmalloc::subtle::Release_Store(ptr, value);
 }
 
 inline AtomicWord Acquire_Load(volatile const AtomicWord* ptr) {
-  return base::subtle::Acquire_Load(ptr);
+  return tcmalloc::subtle::Acquire_Load(ptr);
 }
 
 inline AtomicWord Release_Load(volatile const AtomicWord* ptr) {
-  return base::subtle::Release_Load(ptr);
+  return tcmalloc::subtle::Release_Load(ptr);
 }
 #endif  // AtomicWordCastType
 
@@ -343,55 +343,55 @@ inline AtomicWord Release_Load(volatile const AtomicWord* ptr) {
 inline Atomic32 Acquire_CompareAndSwap(volatile Atomic32* ptr,
                                        Atomic32 old_value,
                                        Atomic32 new_value) {
-  return base::subtle::Acquire_CompareAndSwap(ptr, old_value, new_value);
+  return tcmalloc::subtle::Acquire_CompareAndSwap(ptr, old_value, new_value);
 }
 inline Atomic32 Release_CompareAndSwap(volatile Atomic32* ptr,
                                        Atomic32 old_value,
                                        Atomic32 new_value) {
-  return base::subtle::Release_CompareAndSwap(ptr, old_value, new_value);
+  return tcmalloc::subtle::Release_CompareAndSwap(ptr, old_value, new_value);
 }
 inline void Acquire_Store(volatile Atomic32* ptr, Atomic32 value) {
-  base::subtle::Acquire_Store(ptr, value);
+  tcmalloc::subtle::Acquire_Store(ptr, value);
 }
 inline void Release_Store(volatile Atomic32* ptr, Atomic32 value) {
-  return base::subtle::Release_Store(ptr, value);
+  return tcmalloc::subtle::Release_Store(ptr, value);
 }
 inline Atomic32 Acquire_Load(volatile const Atomic32* ptr) {
-  return base::subtle::Acquire_Load(ptr);
+  return tcmalloc::subtle::Acquire_Load(ptr);
 }
 inline Atomic32 Release_Load(volatile const Atomic32* ptr) {
-  return base::subtle::Release_Load(ptr);
+  return tcmalloc::subtle::Release_Load(ptr);
 }
 
 #ifdef BASE_HAS_ATOMIC64
 
 // 64-bit Acquire/Release operations to be deprecated.
 
-inline base::subtle::Atomic64 Acquire_CompareAndSwap(
-    volatile base::subtle::Atomic64* ptr,
-    base::subtle::Atomic64 old_value, base::subtle::Atomic64 new_value) {
-  return base::subtle::Acquire_CompareAndSwap(ptr, old_value, new_value);
+inline tcmalloc::subtle::Atomic64 Acquire_CompareAndSwap(
+    volatile tcmalloc::subtle::Atomic64* ptr,
+    tcmalloc::subtle::Atomic64 old_value, tcmalloc::subtle::Atomic64 new_value) {
+  return tcmalloc::subtle::Acquire_CompareAndSwap(ptr, old_value, new_value);
 }
-inline base::subtle::Atomic64 Release_CompareAndSwap(
-    volatile base::subtle::Atomic64* ptr,
-    base::subtle::Atomic64 old_value, base::subtle::Atomic64 new_value) {
-  return base::subtle::Release_CompareAndSwap(ptr, old_value, new_value);
+inline tcmalloc::subtle::Atomic64 Release_CompareAndSwap(
+    volatile tcmalloc::subtle::Atomic64* ptr,
+    tcmalloc::subtle::Atomic64 old_value, tcmalloc::subtle::Atomic64 new_value) {
+  return tcmalloc::subtle::Release_CompareAndSwap(ptr, old_value, new_value);
 }
 inline void Acquire_Store(
-    volatile base::subtle::Atomic64* ptr, base::subtle::Atomic64 value) {
-  base::subtle::Acquire_Store(ptr, value);
+    volatile tcmalloc::subtle::Atomic64* ptr, tcmalloc::subtle::Atomic64 value) {
+  tcmalloc::subtle::Acquire_Store(ptr, value);
 }
 inline void Release_Store(
-    volatile base::subtle::Atomic64* ptr, base::subtle::Atomic64 value) {
-  return base::subtle::Release_Store(ptr, value);
+    volatile tcmalloc::subtle::Atomic64* ptr, tcmalloc::subtle::Atomic64 value) {
+  return tcmalloc::subtle::Release_Store(ptr, value);
 }
-inline base::subtle::Atomic64 Acquire_Load(
-    volatile const base::subtle::Atomic64* ptr) {
-  return base::subtle::Acquire_Load(ptr);
+inline tcmalloc::subtle::Atomic64 Acquire_Load(
+    volatile const tcmalloc::subtle::Atomic64* ptr) {
+  return tcmalloc::subtle::Acquire_Load(ptr);
 }
-inline base::subtle::Atomic64 Release_Load(
-    volatile const base::subtle::Atomic64* ptr) {
-  return base::subtle::Release_Load(ptr);
+inline tcmalloc::subtle::Atomic64 Release_Load(
+    volatile const tcmalloc::subtle::Atomic64* ptr) {
+  return tcmalloc::subtle::Release_Load(ptr);
 }
 
 #endif  // BASE_HAS_ATOMIC64

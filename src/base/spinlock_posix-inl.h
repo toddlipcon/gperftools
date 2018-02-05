@@ -39,7 +39,7 @@
 #endif
 #include <time.h>       /* For nanosleep() */
 
-namespace base {
+namespace tcmalloc {
 namespace internal {
 
 void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop) {
@@ -50,7 +50,7 @@ void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop) {
   } else {
     struct timespec tm;
     tm.tv_sec = 0;
-    tm.tv_nsec = base::internal::SuggestedDelayNS(loop);
+    tm.tv_nsec = tcmalloc::internal::SuggestedDelayNS(loop);
     nanosleep(&tm, NULL);
   }
   errno = save_errno;
@@ -60,4 +60,4 @@ void SpinLockWake(volatile Atomic32 *w, bool all) {
 }
 
 } // namespace internal
-} // namespace base
+} // namespace tcmalloc

@@ -325,7 +325,7 @@ static void do_setup_tail() {
   }
   sem_wait(&saver_thread_sem);
 
-  base::subtle::Release_Store(&fully_setup, 1);
+  tcmalloc::subtle::Release_Store(&fully_setup, 1);
 }
 
 REGISTER_MODULE_INITIALIZER(setup_buf_tail, do_setup_tail());
@@ -393,7 +393,7 @@ void ActualTracerBuffer::Finalize() {
 }
 
 bool ActualTracerBuffer::IsFullySetup() {
-  return base::subtle::Acquire_Load(&fully_setup);
+  return tcmalloc::subtle::Acquire_Load(&fully_setup);
 }
 
 TracerBuffer::~TracerBuffer() {}

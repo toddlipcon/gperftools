@@ -44,7 +44,7 @@ typedef int32_t Atomic32;
 #define BASE_HAS_ATOMIC64 1
 #endif
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 static inline void _sync(void) {
@@ -431,7 +431,7 @@ inline Atomic64 Release_Load(volatile const Atomic64 *ptr) {
 
 #endif
 
-}   // namespace base::subtle
-}   // namespace base
+}   // namespace tcmalloc::subtle
+}   // namespace tcmalloc
 
 #endif  // BASE_ATOMICOPS_INTERNALS_LINUXPPC_H_

@@ -154,10 +154,10 @@ static void **NextStackFrame(void **old_sp, const void *uc) {
     static const unsigned char *kernel_rt_sigreturn_address = NULL;
     static const unsigned char *kernel_vsyscall_address = NULL;
     if (num_push_instructions == -1) {
-      base::VDSOSupport vdso;
+      tcmalloc::VDSOSupport vdso;
       if (vdso.IsPresent()) {
-        base::VDSOSupport::SymbolInfo rt_sigreturn_symbol_info;
-        base::VDSOSupport::SymbolInfo vsyscall_symbol_info;
+        tcmalloc::VDSOSupport::SymbolInfo rt_sigreturn_symbol_info;
+        tcmalloc::VDSOSupport::SymbolInfo vsyscall_symbol_info;
         if (!vdso.LookupSymbol("__kernel_rt_sigreturn", "LINUX_2.5",
                                STT_FUNC, &rt_sigreturn_symbol_info) ||
             !vdso.LookupSymbol("__kernel_vsyscall", "LINUX_2.5",

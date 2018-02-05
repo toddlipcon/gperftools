@@ -554,7 +554,7 @@ void PageHeap::GetLargeSpanStats(LargeSpanStats* result) {
   }
 }
 
-bool PageHeap::GetNextRange(PageID start, base::MallocRange* r) {
+bool PageHeap::GetNextRange(PageID start, tcmalloc::MallocRange* r) {
   Span* span = reinterpret_cast<Span*>(pagemap_.Next(start));
   if (span == NULL) {
     return false;
@@ -564,7 +564,7 @@ bool PageHeap::GetNextRange(PageID start, base::MallocRange* r) {
   r->fraction = 0;
   switch (span->location) {
     case Span::IN_USE:
-      r->type = base::MallocRange::INUSE;
+      r->type = tcmalloc::MallocRange::INUSE;
       r->fraction = 1;
       if (span->sizeclass > 0) {
         // Only some of the objects in this span may be in use.
@@ -573,13 +573,13 @@ bool PageHeap::GetNextRange(PageID start, base::MallocRange* r) {
       }
       break;
     case Span::ON_NORMAL_FREELIST:
-      r->type = base::MallocRange::FREE;
+      r->type = tcmalloc::MallocRange::FREE;
       break;
     case Span::ON_RETURNED_FREELIST:
-      r->type = base::MallocRange::UNMAPPED;
+      r->type = tcmalloc::MallocRange::UNMAPPED;
       break;
     default:
-      r->type = base::MallocRange::UNKNOWN;
+      r->type = tcmalloc::MallocRange::UNKNOWN;
       break;
   }
   return true;

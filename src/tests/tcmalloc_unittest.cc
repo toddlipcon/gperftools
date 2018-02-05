@@ -853,21 +853,21 @@ namespace {
 
 struct RangeCallbackState {
   uintptr_t ptr;
-  base::MallocRange::Type expected_type;
+  tcmalloc::MallocRange::Type expected_type;
   size_t min_size;
   bool matched;
 };
 
-static void RangeCallback(void* arg, const base::MallocRange* r) {
+static void RangeCallback(void* arg, const tcmalloc::MallocRange* r) {
   RangeCallbackState* state = reinterpret_cast<RangeCallbackState*>(arg);
   if (state->ptr >= r->address &&
       state->ptr < r->address + r->length) {
-    if (state->expected_type == base::MallocRange::FREE) {
+    if (state->expected_type == tcmalloc::MallocRange::FREE) {
       // We are expecting r->type == FREE, but ReleaseMemory
       // may have already moved us to UNMAPPED state instead (this happens in
       // approximately 0.1% of executions). Accept either state.
-      CHECK(r->type == base::MallocRange::FREE ||
-            r->type == base::MallocRange::UNMAPPED);
+      CHECK(r->type == tcmalloc::MallocRange::FREE ||
+            r->type == tcmalloc::MallocRange::UNMAPPED);
     } else {
       CHECK_EQ(r->type, state->expected_type);
     }
@@ -879,7 +879,7 @@ static void RangeCallback(void* arg, const base::MallocRange* r) {
 // Check that at least one of the callbacks from Ranges() contains
 // the specified address with the specified type, and has size
 // >= min_size.
-static void CheckRangeCallback(void* ptr, base::MallocRange::Type type,
+static void CheckRangeCallback(void* ptr, tcmalloc::MallocRange::Type type,
                                size_t min_size) {
   RangeCallbackState state;
   state.ptr = reinterpret_cast<uintptr_t>(ptr);
@@ -899,20 +899,20 @@ static void TestRanges() {
   static const int MB = 1048576;
   void* a = malloc(MB);
   void* b = malloc(MB);
-  base::MallocRange::Type releasedType =
-      HaveSystemRelease ? base::MallocRange::UNMAPPED : base::MallocRange::FREE;
+  tcmalloc::MallocRange::Type releasedType =
+      HaveSystemRelease ? tcmalloc::MallocRange::UNMAPPED : tcmalloc::MallocRange::FREE;
 
-  CheckRangeCallback(a, base::MallocRange::INUSE, MB);
-  CheckRangeCallback(b, base::MallocRange::INUSE, MB);
+  CheckRangeCallback(a, tcmalloc::MallocRange::INUSE, MB);
+  CheckRangeCallback(b, tcmalloc::MallocRange::INUSE, MB);
   free(a);
-  CheckRangeCallback(a, base::MallocRange::FREE, MB);
-  CheckRangeCallback(b, base::MallocRange::INUSE, MB);
+  CheckRangeCallback(a, tcmalloc::MallocRange::FREE, MB);
+  CheckRangeCallback(b, tcmalloc::MallocRange::INUSE, MB);
   MallocExtension::instance()->ReleaseFreeMemory();
   CheckRangeCallback(a, releasedType, MB);
-  CheckRangeCallback(b, base::MallocRange::INUSE, MB);
+  CheckRangeCallback(b, tcmalloc::MallocRange::INUSE, MB);
   free(b);
   CheckRangeCallback(a, releasedType, MB);
-  CheckRangeCallback(b, base::MallocRange::FREE, MB);
+  CheckRangeCallback(b, tcmalloc::MallocRange::FREE, MB);
 }
 
 #ifndef DEBUGALLOCATION

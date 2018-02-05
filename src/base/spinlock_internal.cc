@@ -30,7 +30,7 @@
  */
 
 // The OS-specific header included below must provide two calls:
-// base::internal::SpinLockDelay() and base::internal::SpinLockWake().
+// tcmalloc::internal::SpinLockDelay() and tcmalloc::internal::SpinLockWake().
 // See spinlock_internal.h for the spec of SpinLockWake().
 
 // void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop)
@@ -44,7 +44,7 @@
 #include "base/spinlock_internal.h"
 
 // forward declaration for use by spinlock_*-inl.h
-namespace base { namespace internal { static int SuggestedDelayNS(int loop); }}
+namespace tcmalloc { namespace internal { static int SuggestedDelayNS(int loop); }}
 
 #if defined(_WIN32)
 #include "base/spinlock_win32-inl.h"
@@ -54,7 +54,7 @@ namespace base { namespace internal { static int SuggestedDelayNS(int loop); }}
 #include "base/spinlock_posix-inl.h"
 #endif
 
-namespace base {
+namespace tcmalloc {
 namespace internal {
 
 // Return a suggested delay in nanoseconds for iteration number "loop"
@@ -62,10 +62,10 @@ static int SuggestedDelayNS(int loop) {
   // Weak pseudo-random number generator to get some spread between threads
   // when many are spinning.
 #ifdef BASE_HAS_ATOMIC64
-  static base::subtle::Atomic64 rand;
-  uint64 r = base::subtle::NoBarrier_Load(&rand);
+  static tcmalloc::subtle::Atomic64 rand;
+  uint64 r = tcmalloc::subtle::NoBarrier_Load(&rand);
   r = 0x5deece66dLL * r + 0xb;   // numbers from nrand48()
-  base::subtle::NoBarrier_Store(&rand, r);
+  tcmalloc::subtle::NoBarrier_Store(&rand, r);
 
   r <<= 16;   // 48-bit random number now in top 48-bits.
   if (loop < 0 || loop > 32) {   // limit loop to 0..32
@@ -80,9 +80,9 @@ static int SuggestedDelayNS(int loop) {
   return r >> (44 - (loop >> 3));
 #else
   static Atomic32 rand;
-  uint32 r = base::subtle::NoBarrier_Load(&rand);
+  uint32 r = tcmalloc::subtle::NoBarrier_Load(&rand);
   r = 0x343fd * r + 0x269ec3;   // numbers from MSVC++
-  base::subtle::NoBarrier_Store(&rand, r);
+  tcmalloc::subtle::NoBarrier_Store(&rand, r);
 
   r <<= 1;   // 31-bit random number now in top 31-bits.
   if (loop < 0 || loop > 32) {   // limit loop to 0..32
@@ -99,4 +99,4 @@ static int SuggestedDelayNS(int loop) {
 }
 
 } // namespace internal
-} // namespace base
+} // namespace tcmalloc

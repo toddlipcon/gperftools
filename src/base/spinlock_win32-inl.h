@@ -35,7 +35,7 @@
 
 #include <windows.h>
 
-namespace base {
+namespace tcmalloc {
 namespace internal {
 
 void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop) {
@@ -43,7 +43,7 @@ void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop) {
   } else if (loop == 1) {
     Sleep(0);
   } else {
-    Sleep(base::internal::SuggestedDelayNS(loop) / 1000000);
+    Sleep(tcmalloc::internal::SuggestedDelayNS(loop) / 1000000);
   }
 }
 
@@ -51,4 +51,4 @@ void SpinLockWake(volatile Atomic32 *w, bool all) {
 }
 
 } // namespace internal
-} // namespace base
+} // namespace tcmalloc

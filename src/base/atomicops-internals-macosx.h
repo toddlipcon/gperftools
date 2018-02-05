@@ -43,7 +43,7 @@ typedef int32_t Atomic32;
 // AtomicWord and Atomic64 are always different.  Thus, we need explicit
 // casting.
 #ifdef __LP64__
-#define AtomicWordCastType base::subtle::Atomic64
+#define AtomicWordCastType tcmalloc::subtle::Atomic64
 #else
 #define AtomicWordCastType Atomic32
 #endif
@@ -54,7 +54,7 @@ typedef int32_t Atomic32;
 
 #include <libkern/OSAtomic.h>
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 #if !defined(__LP64__) && defined(__ppc__)
@@ -364,7 +364,7 @@ inline Atomic64 Release_Load(volatile const Atomic64 *ptr) {
 }
 #endif  // __LP64__
 
-}   // namespace base::subtle
-}   // namespace base
+}   // namespace tcmalloc::subtle
+}   // namespace tcmalloc
 
 #endif  // BASE_ATOMICOPS_INTERNALS_MACOSX_H_

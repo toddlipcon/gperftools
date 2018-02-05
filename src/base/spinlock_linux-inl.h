@@ -63,7 +63,7 @@ static struct InitModule {
 }  // anonymous namespace
 
 
-namespace base {
+namespace tcmalloc {
 namespace internal {
 
 void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop) {
@@ -72,7 +72,7 @@ void SpinLockDelay(volatile Atomic32 *w, int32 value, int loop) {
     struct timespec tm;
     tm.tv_sec = 0;
     if (have_futex) {
-      tm.tv_nsec = base::internal::SuggestedDelayNS(loop);
+      tm.tv_nsec = tcmalloc::internal::SuggestedDelayNS(loop);
     } else {
       tm.tv_nsec = 2000001;   // above 2ms so linux 2.4 doesn't spin
     }
@@ -98,4 +98,4 @@ void SpinLockWake(volatile Atomic32 *w, bool all) {
 }
 
 } // namespace internal
-} // namespace base
+} // namespace tcmalloc

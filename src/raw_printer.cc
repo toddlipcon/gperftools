@@ -37,7 +37,7 @@
 #include "raw_printer.h"
 #include "base/logging.h"
 
-namespace base {
+namespace tcmalloc {
 
 RawPrinter::RawPrinter(char* buf, int length)
     : base_(buf),

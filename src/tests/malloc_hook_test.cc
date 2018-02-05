@@ -91,12 +91,12 @@ void Sleep(int seconds) {
 }
 
 using std::min;
-using base::internal::kHookListMaxValues;
+using tcmalloc::internal::kHookListMaxValues;
 
 // Since HookList is a template and is defined in malloc_hook.cc, we can only
 // use an instantiation of it from malloc_hook.cc.  We then reinterpret those
 // values as integers for testing.
-typedef base::internal::HookList<MallocHook::NewHook> TestHookList;
+typedef tcmalloc::internal::HookList<MallocHook::NewHook> TestHookList;
 
 int TestHookList_Traverse(const TestHookList& list, uintptr_t* output_array, int n) {
   MallocHook::NewHook values_as_hooks[kHookListMaxValues];

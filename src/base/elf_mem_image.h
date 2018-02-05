@@ -50,7 +50,7 @@
 #include <stdlib.h>
 #include <link.h>  // for ElfW
 
-namespace base {
+namespace tcmalloc {
 
 // An in-memory ELF image (may not exist on disk).
 class ElfMemImage {
@@ -128,7 +128,7 @@ class ElfMemImage {
   ElfW(Addr) link_base_;     // Link-time base (p_vaddr of first PT_LOAD).
 };
 
-}  // namespace base
+}  // namespace tcmalloc
 
 #endif  // __ELF__ and __GLIBC__ and !__native_client__
 

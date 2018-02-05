@@ -48,13 +48,13 @@
 #include "base/dynamic_annotations.h"
 #include "base/basictypes.h"  // for COMPILE_ASSERT
 
-using base::subtle::MemoryBarrier;
+using tcmalloc::subtle::MemoryBarrier;
 
 #ifndef AT_SYSINFO_EHDR
 #define AT_SYSINFO_EHDR 33
 #endif
 
-namespace base {
+namespace tcmalloc {
 
 const void *VDSOSupport::vdso_base_ = ElfMemImage::kInvalidBase;
 VDSOSupport::VDSOSupport()

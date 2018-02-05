@@ -52,7 +52,7 @@
 
 typedef int32_t Atomic32;
 
-namespace base {
+namespace tcmalloc {
 namespace subtle {
 
 typedef int64_t Atomic64;
@@ -325,6 +325,6 @@ inline Atomic64 Release_CompareAndSwap(volatile Atomic64* ptr,
 }
 
 }  // namespace subtle ends
-}  // namespace base ends
+}  // namespace tcmalloc ends
 
 #endif  // BASE_ATOMICOPS_INTERNALS_ARM_V6PLUS_H_

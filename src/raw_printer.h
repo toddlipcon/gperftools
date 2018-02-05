@@ -46,7 +46,7 @@
 #include <config.h>
 #include "base/basictypes.h"
 
-namespace base {
+namespace tcmalloc {
 
 class RawPrinter {
  public:
