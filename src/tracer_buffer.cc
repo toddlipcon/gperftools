@@ -293,9 +293,7 @@ static Writer* open_trace_output() {
   fcntl(fd, F_SETFL, flags | O_DIRECT);
 
   // if output is pipe, we need larger buffer
-#ifdef F_SETPIPE_SZ
   fcntl(fd, F_SETPIPE_SZ, 1 << 20);
-#endif
 
   Writer* direct_writer = new DirectWriter(fd);
 
