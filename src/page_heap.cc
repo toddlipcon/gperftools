@@ -173,22 +173,22 @@ Span* PageHeap::AllocLarge(Length n) {
   templ.start = 0;
   templ.length = n;
 
-  SpanSet::iterator place = large_normal_.upper_bound(&templ);
+  SpanSet::iterator place = large_normal_.upper_bound(templ);
   if (place != large_normal_.end()) {
-    best = *place;
+    best = &*place;
     best_normal = best;
     ASSERT(best->location == Span::ON_NORMAL_FREELIST);
   }
 
   // try to find better fit for returned list
-  place = large_returned_.upper_bound(&templ);
+  place = large_returned_.upper_bound(templ);
   if (place != large_returned_.end()) {
-    Span *c = *place;
+    Span *c = &*place;
     ASSERT(c->location == Span::ON_RETURNED_FREELIST);
     if (best_normal == NULL
         || c->length < best->length
         || (c->length == best->length && c->start < best->start))
-      best = *place;
+      best = &*place;
   }
 
   if (best == &templ) {
@@ -402,9 +402,8 @@ void PageHeap::PrependToFreeList(Span* span) {
     SpanSet *set = &large_normal_;
     if (span->location == Span::ON_RETURNED_FREELIST)
       set = &large_returned_;
-    SpanSet::iterator place = set->insert(span).first;
-    span->rev_ptr.set_iterator(place);
-    ASSERT(*(span->rev_ptr.get_iterator()) == span);
+    bool inserted = set->insert(*span).second;
+    ASSERT(inserted); // TODO warning
     return;
   }
 
@@ -429,7 +428,7 @@ void PageHeap::RemoveFromFreeList(Span* span) {
       set = &large_returned_;
     ASSERT(*(span->rev_ptr.get_iterator()) == span);
     ASSERT(set->find(span) == span->rev_ptr.get_iterator());
-    set->erase(span->rev_ptr.get_iterator());
+    set->erase(set->iterator_to(*span));
   } else
     DLL_Remove(span);
 }
@@ -495,7 +494,7 @@ Length PageHeap::ReleaseAtLeastNPages(Length num_pages) {
         if (large_normal_.empty()) {
           continue;
         }
-        s = *(large_normal_.rbegin());
+        s = &*(large_normal_.rbegin());
       } else {
         SpanList* slist = &free_[release_index_];
         if (DLL_IsEmpty(&slist->normal)) {
@@ -561,11 +560,11 @@ void PageHeap::GetLargeSpanStats(LargeSpanStats* result) {
   result->normal_pages = 0;
   result->returned_pages = 0;
   for (SpanSet::iterator it = large_normal_.begin(); it != large_normal_.end(); ++it) {
-    result->normal_pages += (*it)->length;;
+    result->normal_pages += (*it).length;;
     result->spans++;
   }
   for (SpanSet::iterator it = large_returned_.begin(); it != large_returned_.end(); ++it) {
-    result->returned_pages += (*it)->length;;
+    result->returned_pages += (*it).length;;
     result->spans++;
   }
 }
@@ -696,7 +695,7 @@ bool PageHeap::CheckList(Span* list, Length min_pages, Length max_pages,
 
 bool PageHeap::CheckSet(SpanSet* spanset, Length min_pages,int freelist) {
   for (SpanSet::iterator it = spanset->begin(); it != spanset->end(); ++it) {
-    Span* s = *it;
+    Span* s = &*it;
     CHECK_CONDITION(s->location == freelist);  // NORMAL or RETURNED
     CHECK_CONDITION(s->length >= min_pages);
     CHECK_CONDITION(GetDescriptor(s->start) == s);

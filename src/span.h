@@ -42,6 +42,8 @@
 #include "base/logging.h"
 #include "page_heap_allocator.h"
 
+#include <boost/intrusive/set.hpp>
+
 namespace tcmalloc {
 
 template <typename T, class LockingTag>
@@ -105,24 +107,6 @@ typename STLPageHeapAllocator<T, LockingTag>::Storage STLPageHeapAllocator<T, Lo
 struct SpanBestFitLess;
 struct Span;
 
-typedef std::set<Span*, SpanBestFitLess, STLPageHeapAllocator<Span*, void> > SpanSet;
-
-struct SpanBestFitLess {
-  inline bool operator()(Span *, Span *);
-};
-
-
-struct SpanSetRevPtr {
-  char data[sizeof(SpanSet::iterator)];
-
-  SpanSet::iterator get_iterator() {
-    return *static_cast<SpanSet::iterator*>(static_cast<void *>(this));
-  }
-
-  void set_iterator(const SpanSet::iterator& val) {
-    new (this) SpanSet::iterator(val);
-  }
-};
 
 // Information kept for a span (a contiguous run of pages).
 struct Span {
@@ -133,9 +117,9 @@ struct Span {
   Span*         prev;           // Used when in link list
   union {
     void*         objects;      // Linked list of free objects
-    SpanSetRevPtr rev_ptr;      // "pointer" (std::set iterator) to
                                 // SpanSet entry pointing here
   };
+  boost::intrusive::set_member_hook<> member_hook;
   unsigned int  refcount : 16;  // Number of non-free objects
   unsigned int  sizeclass : 8;  // Size-class for small objects (or 0)
   unsigned int  location : 2;   // Is the span on a freelist, and if so, which?
@@ -159,12 +143,23 @@ void Event(Span* span, char op, int v = 0);
 #define Event(s,o,v) ((void) 0)
 #endif
 
-inline bool SpanBestFitLess::operator()(Span *a, Span *b) {
-  if (a->length < b->length)
+
+typedef boost::intrusive::member_hook<Span, boost::intrusive::set_member_hook<>, &Span::member_hook> HookOption;
+typedef boost::intrusive::set<Span,
+                              boost::intrusive::compare<SpanBestFitLess>,
+                              HookOption> SpanSet;
+
+struct SpanBestFitLess {
+  inline bool operator()(const Span &, const Span &);
+};
+
+
+inline bool SpanBestFitLess::operator()(const Span& a, const Span& b) {
+  if (a.length < b.length)
     return true;
-  if (a->length > b->length)
+  if (a.length > b.length)
     return false;
-  return a->start < b->start;
+  return a.start < b.start;
 }
 
 // Allocator/deallocator for spans
