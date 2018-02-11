@@ -105,10 +105,16 @@ typename STLPageHeapAllocator<T, LockingTag>::Storage STLPageHeapAllocator<T, Lo
 struct SpanBestFitLess;
 struct Span;
 
-typedef std::set<Span*, SpanBestFitLess, STLPageHeapAllocator<Span*, void> > SpanSet;
+struct SpanPtrWithLength {
+  explicit SpanPtrWithLength(Span* s);
+
+  Span* span;
+  Length length;
+};
+typedef std::set<SpanPtrWithLength, SpanBestFitLess, STLPageHeapAllocator<Span*, void> > SpanSet;
 
 struct SpanBestFitLess {
-  inline bool operator()(Span *, Span *);
+  inline bool operator()(SpanPtrWithLength, SpanPtrWithLength);
 };
 
 
@@ -159,12 +165,17 @@ void Event(Span* span, char op, int v = 0);
 #define Event(s,o,v) ((void) 0)
 #endif
 
-inline bool SpanBestFitLess::operator()(Span *a, Span *b) {
-  if (a->length < b->length)
+inline SpanPtrWithLength::SpanPtrWithLength(Span* s)
+    : span(s),
+      length(s->length) {
+}
+
+inline bool SpanBestFitLess::operator()(SpanPtrWithLength a, SpanPtrWithLength b) {
+  if (a.length < b.length)
     return true;
-  if (a->length > b->length)
+  if (a.length > b.length)
     return false;
-  return a->start < b->start;
+  return a.span->start < b.span->start;
 }
 
 // Allocator/deallocator for spans
