@@ -42,7 +42,7 @@
 #include "base/logging.h"
 #include "page_heap_allocator.h"
 
-#include <boost/intrusive/splay_set.hpp>
+#include <boost/intrusive/avl_set.hpp>
 
 namespace tcmalloc {
 
@@ -119,7 +119,7 @@ struct Span {
     void*         objects;      // Linked list of free objects
                                 // SpanSet entry pointing here
   };
-  boost::intrusive::bs_set_member_hook<> member_hook;
+  boost::intrusive::avl_set_member_hook<> member_hook;
   unsigned int  refcount : 16;  // Number of non-free objects
   unsigned int  sizeclass : 8;  // Size-class for small objects (or 0)
   unsigned int  location : 2;   // Is the span on a freelist, and if so, which?
@@ -144,8 +144,8 @@ void Event(Span* span, char op, int v = 0);
 #endif
 
 
-typedef boost::intrusive::member_hook<Span, boost::intrusive::bs_set_member_hook<>, &Span::member_hook> HookOption;
-typedef boost::intrusive::splay_set<Span,
+typedef boost::intrusive::member_hook<Span, boost::intrusive::avl_set_member_hook<>, &Span::member_hook> HookOption;
+typedef boost::intrusive::avl_set<Span,
                               boost::intrusive::compare<SpanBestFitLess>,
                               HookOption> SpanSet;
 
