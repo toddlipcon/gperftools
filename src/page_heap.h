@@ -299,13 +299,10 @@ class PERFTOOLS_DLL_DECL PageHeap {
   bool DecommitSpan(Span* span);
 
   // Prepends span to appropriate free list, and adjusts stats.
-  void PrependToFreeList(Span* span, std::pair<bool, SpanSet::iterator> hint);
+  void PrependToFreeList(Span* span);
 
   // Removes span from its free list, and adjust stats.
-  //
-  // Returns a hint iterator for re-insertion of the span after
-  // carving.
-  std::pair<bool, SpanSet::iterator> RemoveFromFreeList(Span* span);
+  void RemoveFromFreeList(Span* span);
 
   // Incrementally release some memory to the system.
   // IncrementalScavenge(n) is called whenever n pages are freed.

@@ -256,7 +256,7 @@ Span* PageHeap::Carve(Span* span, Length n) {
   ASSERT(n > 0);
   ASSERT(span->location != Span::IN_USE);
   const int old_location = span->location;
-  std::pair<bool, SpanSet::iterator> hint = RemoveFromFreeList(span);
+  RemoveFromFreeList(span);
   span->location = Span::IN_USE;
   Event(span, 'A', n);
 
@@ -280,7 +280,7 @@ Span* PageHeap::Carve(Span* span, Length n) {
             next->location != leftover->location);
 #endif
 
-    PrependToFreeList(leftover, hint);  // Skip coalescing - no candidates possible
+    PrependToFreeList(leftover);  // Skip coalescing - no candidates possible
     span->length = n;
     pagemap_.set(span->start + n - 1, span);
   }
@@ -388,10 +388,10 @@ void PageHeap::MergeIntoFreeList(Span* span) {
     Event(span, 'R', len);
   }
 
-  PrependToFreeList(span, std::make_pair(false, SpanSet::iterator()));
+  PrependToFreeList(span);
 }
 
-void PageHeap::PrependToFreeList(Span* span, std::pair<bool, SpanSet::iterator> hint) {
+void PageHeap::PrependToFreeList(Span* span) {
   ASSERT(span->location != Span::IN_USE);
   if (span->location == Span::ON_NORMAL_FREELIST)
     stats_.free_bytes += (span->length << kPageShift);
@@ -402,12 +402,7 @@ void PageHeap::PrependToFreeList(Span* span, std::pair<bool, SpanSet::iterator> 
     SpanSet *set = &large_normal_;
     if (span->location == Span::ON_RETURNED_FREELIST)
       set = &large_returned_;
-    SpanSet::iterator place;
-    if (hint.first) {
-      place = set->insert(hint.second, span);
-    } else {
-      place = set->insert(span).first;
-    }
+    SpanSet::iterator place = set->insert(span).first;
     span->rev_ptr.set_iterator(place);
     ASSERT(*(span->rev_ptr.get_iterator()) == span);
     return;
@@ -421,7 +416,7 @@ void PageHeap::PrependToFreeList(Span* span, std::pair<bool, SpanSet::iterator> 
   }
 }
 
-std::pair<bool, SpanSet::iterator> PageHeap::RemoveFromFreeList(Span* span) {
+void PageHeap::RemoveFromFreeList(Span* span) {
   ASSERT(span->location != Span::IN_USE);
   if (span->location == Span::ON_NORMAL_FREELIST) {
     stats_.free_bytes -= (span->length << kPageShift);
@@ -434,13 +429,9 @@ std::pair<bool, SpanSet::iterator> PageHeap::RemoveFromFreeList(Span* span) {
       set = &large_returned_;
     ASSERT(*(span->rev_ptr.get_iterator()) == span);
     ASSERT(set->find(span) == span->rev_ptr.get_iterator());
-    SpanSet::iterator it = span->rev_ptr.get_iterator();
-    set->erase(it++);
-    return std::make_pair(true, it);
-  } else {
+    set->erase(span->rev_ptr.get_iterator());
+  } else
     DLL_Remove(span);
-    return std::make_pair(false, SpanSet::iterator());
-  }
 }
 
 void PageHeap::IncrementalScavenge(Length n) {
